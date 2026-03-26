@@ -1,7 +1,6 @@
 import pytest
 from model import Question
 
-
 def test_create_question():
     question = Question(title='q1')
     assert question.id != None
@@ -109,3 +108,23 @@ def test_correct_selected_choices_returns_only_correct_matches():
     correct_selections = question.correct_selected_choices([choice1.id, choice2.id])
     
     assert correct_selections == [choice1.id]
+
+@pytest.fixture
+def question_with_choices():
+    question = Question(title='q1', max_selections=3)
+    c1 = question.add_choice('a', is_correct=True)
+    c2 = question.add_choice('b', is_correct=False)
+    c3 = question.add_choice('c', is_correct=True)
+    return question
+
+def test_fixture_has_three_choices(question_with_choices):
+    assert len(question_with_choices.choices) == 3
+
+def test_correct_selected_choices_with_fixture(question_with_choices):
+    ids = [choice.id for choice in question_with_choices.choices]
+    
+    result = question_with_choices.correct_selected_choices(ids)
+    
+    correct_ids = [choice.id for choice in question_with_choices.choices if choice.is_correct]
+    
+    assert result == correct_ids
